@@ -1,0 +1,7 @@
+bin
+obj
+*.user*
+_NCrunch_UnitConverter
+.vs
+UnitConverter.v3.ncrunchsolution
+*.orig
