@@ -39,11 +39,13 @@ namespace Units
         }
 
         public decimal Value { get; }
-        public decimal ValueInMeters { get; }
         public decimal Ratio { get; }
         public string ShortName { get; }
         public string LongName { get; }
         public static IEnumerable<UnitLength> AllUnits { get; }
+        public override string ToString() => $"{ShortName}";
+        public string ToLongString() => $"{ShortName} ({LongName})";
+        private decimal ValueInMeters { get; }
 
         public static bool TryParse(string input, out UnitLength value)
         {
@@ -59,10 +61,6 @@ namespace Units
             value = matchedUnit;
             return true;
         }
-
-        public override string ToString() => $"{ShortName}";
-
-        public string ToLongString() => $"{ShortName} ({LongName})";
 
         public override bool Equals(object obj)
         {

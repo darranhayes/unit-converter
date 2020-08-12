@@ -14,17 +14,16 @@ namespace Units
 
         public Distance ConvertTo(UnitLength targetUnit)
         {
-            var targetDistance = (Value * Unit.Ratio) / targetUnit.Ratio;
+            var targetDistance = ValueInMeters / targetUnit.Ratio;
 
             return new Distance(targetDistance, targetUnit);
         }
 
         public decimal Value { get; }
         public UnitLength Unit { get; }
-
         public override string ToString() => $"{Math.Round(Value, 2)}{Unit}";
-
         public string ToLongString() => $"{Value}{Unit.ToLongString()}";
+        private decimal ValueInMeters => Value * Unit.Ratio;
 
         public override bool Equals(object obj)
         {
@@ -35,8 +34,8 @@ namespace Units
             return Equals(unit);
         }
 
-        protected bool Equals(Distance other) => Value * Unit.Ratio == other.Value * other.Unit.Ratio;
+        protected bool Equals(Distance other) => ValueInMeters == other.ValueInMeters;
 
-        public override int GetHashCode() => HashCode.Combine(Value, Unit);
+        public override int GetHashCode() => ValueInMeters.GetHashCode();
     }
 }
