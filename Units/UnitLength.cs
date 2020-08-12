@@ -39,15 +39,10 @@ namespace Units
         }
 
         public decimal Value { get; }
-
         public decimal ValueInMeters { get; }
-
         public decimal Ratio { get; }
-
         public string ShortName { get; }
-
         public string LongName { get; }
-
         public static IEnumerable<UnitLength> AllUnits { get; }
 
         public static bool TryParse(string input, out UnitLength value)
@@ -65,14 +60,21 @@ namespace Units
             return true;
         }
 
-        public override string ToString()
+        public override string ToString() => $"{ShortName}";
+
+        public string ToLongString() => $"{ShortName} ({LongName})";
+
+        public override bool Equals(object obj)
         {
-            return $"{ShortName}";
+            var unit = obj as UnitLength;
+            if (unit == null)
+                return false;
+
+            return Equals(unit);
         }
 
-        public string ToLongString()
-        {
-            return $"{ShortName} ({LongName})";
-        }
+        protected bool Equals(UnitLength other) => ValueInMeters == other.ValueInMeters;
+
+        public override int GetHashCode() => ValueInMeters.GetHashCode();
     }
 }

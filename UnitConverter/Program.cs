@@ -4,11 +4,11 @@ using Units;
 
 namespace UnitConverter
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            var availableUnits = String.Join(", ", UnitLength.AllUnits.Select(unit => unit.ShortName));
+            var availableUnits = string.Join(", ", UnitLength.AllUnits.Select(unit => unit.ShortName));
 
             while (true)
             {
@@ -17,7 +17,7 @@ namespace UnitConverter
                 if (!validInputUnit) continue;
 
                 Console.WriteLine("Enter your distance in above unit");
-                var validDistance = Decimal.TryParse(Console.ReadLine(), out var distanceAmount);
+                var validDistance = decimal.TryParse(Console.ReadLine(), out var distanceAmount);
                 if (!validDistance) continue;
 
                 Console.WriteLine($"Enter your target unit in ({availableUnits})");

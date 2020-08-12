@@ -4,10 +4,7 @@ namespace Units
 {
     public class Distance
     {
-        public static Distance Create(decimal distance, UnitLength unitLength)
-        {
-            return new Distance(distance, unitLength);
-        }
+        public static Distance Create(decimal distance, UnitLength unitLength) => new Distance(distance, unitLength);
 
         private Distance(decimal distance, UnitLength unitLength)
         {
@@ -25,14 +22,21 @@ namespace Units
         public decimal Value { get; }
         public UnitLength Unit { get; }
 
-        public override string ToString()
+        public override string ToString() => $"{Math.Round(Value, 2)}{Unit}";
+
+        public string ToLongString() => $"{Value}{Unit.ToLongString()}";
+
+        public override bool Equals(object obj)
         {
-            return $"{Math.Round(Value, 2)}{Unit}";
+            var unit = obj as Distance;
+            if (unit == null)
+                return false;
+
+            return Equals(unit);
         }
 
-        public string ToLongString()
-        {
-            return $"{Value}{Unit.ToLongString()}";
-        }
+        protected bool Equals(Distance other) => Value * Unit.Ratio == other.Value * other.Unit.Ratio;
+
+        public override int GetHashCode() => HashCode.Combine(Value, Unit);
     }
 }
