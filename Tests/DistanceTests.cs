@@ -34,10 +34,10 @@ namespace Tests
             decimal targetDistanceInput, string targetUnitInput
             )
         {
-            UnitLength.TryParse(baseUnitInput, out var @base);
+            Length.TryParse(baseUnitInput, out var @base);
             var baseDistance = Distance.Create(baseDistanceInput, @base);
 
-            UnitLength.TryParse(targetUnitInput, out var targetUnit);
+            Length.TryParse(targetUnitInput, out var targetUnit);
             var targetDistance = baseDistance.ConvertTo(targetUnit);
 
             Assert.Equal(baseUnitInput, baseDistance.Unit.ToString());
@@ -55,11 +55,11 @@ namespace Tests
         [Fact]
         public void CheckNotEquals()
         {
-            UnitLength.TryParse("mm", out var @base);
+            Length.TryParse("mm", out var @base);
 
             var baseDistance = Distance.Create(9m, @base);
 
-            UnitLength.TryParse("cm", out var targetUnit);
+            Length.TryParse("cm", out var targetUnit);
 
             var targetDistance = Distance.Create(9m, targetUnit);
 

@@ -4,26 +4,28 @@ namespace Units
 {
     public class Distance
     {
-        public static Distance Create(decimal distance, UnitLength unitLength) => new Distance(distance, unitLength);
+        public static Distance Create(decimal distance, Length length) => new Distance(distance, length);
 
-        private Distance(decimal distance, UnitLength unitLength)
+        private Distance(decimal distance, Length length)
         {
             Value = distance;
-            Unit = unitLength;
+            Unit = length;
+            ValueInMeters = Value * Unit.Ratio;
         }
 
-        public Distance ConvertTo(UnitLength targetUnit)
+        public Distance ConvertTo(Length target)
         {
-            var targetDistance = ValueInMeters / targetUnit.Ratio;
+            var targetDistance = ValueInMeters / target.Ratio;
 
-            return new Distance(targetDistance, targetUnit);
+            return new Distance(targetDistance, target);
         }
 
         public decimal Value { get; }
-        public UnitLength Unit { get; }
+        public Length Unit { get; }
+        private decimal ValueInMeters { get; }
+
         public override string ToString() => $"{Math.Round(Value, 2)}{Unit}";
         public string ToLongString() => $"{Value}{Unit.ToLongString()}";
-        private decimal ValueInMeters => Value * Unit.Ratio;
 
         public override bool Equals(object obj)
         {
