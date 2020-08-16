@@ -23,7 +23,7 @@ namespace Tests
         [InlineData(1, "h", 60, "m")]
         [InlineData(1, "d", 24, "h")]
         [InlineData(1, "y", 365, "d")]
-        public void TimeCreate(
+        public void TimeCreateAndConvertTo(
             decimal timeInput, string unitInput,
             decimal targetTimeInput, string targetTimeUnitInput
         )
@@ -77,7 +77,7 @@ namespace Tests
         [InlineData("1h", "60m")]
         [InlineData("1d", "24h")]
         [InlineData("1y", "365d")]
-        public void TimeTryParse(
+        public void TimeTryParseAndEquals(
             string baseTimeInput,
             string targetTimeInput
         )

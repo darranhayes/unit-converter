@@ -46,11 +46,13 @@ namespace Units
             Year
         };
 
+        public bool IsUnit() => Value == 1m;
+
         public Time ConvertTo(Time target)
         {
-            var targetDistance = ValueInSeconds / target.Ratio;
+            var targetTime = ValueInSeconds / target.Ratio;
 
-            return Create(targetDistance, target);
+            return Create(targetTime, target);
         }
 
         public static bool TryParseUnit(string input, out Time value)
@@ -99,6 +101,14 @@ namespace Units
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             return ValueInSeconds == other.ValueInSeconds;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Time)obj);
         }
     }
 }

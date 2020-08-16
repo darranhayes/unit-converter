@@ -27,7 +27,7 @@ namespace Tests
         [InlineData(1, "ft", 12, "i")]
         [InlineData(1, "yd", 3, "ft")]
         [InlineData(1, "mi", 1609.344, "m")]
-        public void DistanceCreate(
+        public void DistanceCreateAndConvertTo(
             decimal distanceInput, string unitInput, 
             decimal targetDistanceInput, string targetDistanceUnitInput
             )
@@ -85,7 +85,7 @@ namespace Tests
         [InlineData("1ft", "12i")]
         [InlineData("1yd", "3ft")]
         [InlineData("1mi", "1609.344m")]
-        public void DistanceTryParse(
+        public void DistanceTryParseAndEquals(
             string baseDistanceInput,
             string targetDistanceInput
         )
