@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Units
 {
@@ -71,19 +72,23 @@ namespace Units
             return true;
         }
 
+        private static readonly Regex DistanceParser = new Regex(@"^(?<distance>[+-]?(([1-9][0-9]*)?[0-9](\.[0-9]*)?|\.[0-9]+))(\s*)(?<unit>\w+)$");
+
         public static bool TryParse(string input, out Distance distance)
         {
-            var lowerInput = input.ToLower();
+            var decimalPart = DistanceParser.Match(input).Groups["distance"];
+            var unitPart = DistanceParser.Match(input).Groups["unit"];
 
-            var matchedUnit = AllUnits.FirstOrDefault(unit => unit.ShortName.ToLowerInvariant() == lowerInput || unit.LongName.ToLowerInvariant() == lowerInput);
+            var valueStringMatched = Decimal.TryParse(decimalPart.Value, out var value);
+            var unitStringMatched = Distance.TryParseUnit(unitPart.Value, out var unit);
 
-            if (matchedUnit == null)
+            if (!valueStringMatched || !unitStringMatched)
             {
                 distance = null;
                 return false;
             }
 
-            distance = matchedUnit;
+            distance = Create(value, unit);
             return true;
         }
 

@@ -8,7 +8,7 @@ namespace Tests
     public class DistanceTests
     {
         /// <summary>
-        /// Show that converting distance in one unit equals the same real distance expressed in a different unit
+        /// Distance.Create - Show that converting distance in one unit equals the same real distance expressed in a different unit
         /// </summary>
         /// <param name="distanceInput"></param>
         /// <param name="unitInput"></param>
@@ -29,7 +29,7 @@ namespace Tests
         [InlineData(1, "ft", 12, "i")]
         [InlineData(1, "yd", 3, "ft")]
         [InlineData(1, "mi", 1609.344, "m")]
-        public void ConvertedDistancesAreEqual(
+        public void DistanceCreate(
             decimal distanceInput, string unitInput, 
             decimal targetDistanceInput, string targetDistanceUnitInput
             )
@@ -53,17 +53,88 @@ namespace Tests
         /// Rudimentary verification that Distance.Equals does not always return true
         /// </summary>
         [Fact]
-        public void CheckNotEquals()
+        public void DistanceCreateCheckNotEqual()
         {
-            Distance.TryParseUnit("mm", out var unit);
-            var distance = Distance.Create(9m, unit);
+            Distance.TryParseUnit("mm", out var mm);
+            var distance = Distance.Create(9m, mm);
 
-            Distance.TryParseUnit("cm", out var targetUnit);
-            var targetDistance = Distance.Create(9m, targetUnit);
+            Distance.TryParseUnit("cm", out var cm);
+            var targetDistance = Distance.Create(9m, cm);
 
             Assert.Equal("9mm", distance.ToString());
             Assert.Equal("9cm", targetDistance.ToString());
             Assert.NotEqual(distance, targetDistance);
+        }
+
+        /// <summary>
+        /// Distance.TryParse - Show that converting distance in one unit of length equals the same real distance expressed
+        /// in a different unit of length
+        /// </summary>
+        /// <param name="baseDistanceInput"></param>
+        /// <param name="targetDistanceInput"></param>
+        [Theory]
+        [InlineData("10mm", "1cm")]
+        [InlineData("100cm", "1m")]
+        [InlineData("1000mm", "1m")]
+        [InlineData("1000m", "1km")]
+        [InlineData("12i", "1ft")]
+        [InlineData("3ft", "1yd")]
+        [InlineData("1609.344m", "1mi")]
+        [InlineData("1cm", "10mm")]
+        [InlineData("1m", "100cm")]
+        [InlineData("1m", "1000mm")]
+        [InlineData("1km", "1000m")]
+        [InlineData("1ft", "12i")]
+        [InlineData("1yd", "3ft")]
+        [InlineData("1mi", "1609.344m")]
+        public void DistanceTryParse(
+            string baseDistanceInput,
+            string targetDistanceInput
+        )
+        {
+            Distance.TryParse(baseDistanceInput, out var distance);
+
+            Distance.TryParse(targetDistanceInput, out var targetDistance);
+
+            Assert.Equal(distance, targetDistance);
+        }
+
+        /// <summary>
+        /// Distance.TryParse - Show that converting distance in one unit of length equals the same real distance expressed
+        /// in a different unit of length
+        /// </summary>
+        /// <param name="baseDistanceInput"></param>
+        /// <param name="targetDistanceInput"></param>
+        [Theory]
+        [InlineData("10 mm", "1cm")]
+        [InlineData("10  mm", "1cm")]
+        [InlineData("10   mm", "1cm")]
+        [InlineData("10\tmm", "1cm")]
+        public void DistanceTryParseWithWhitespace(
+            string baseDistanceInput,
+            string targetDistanceInput
+        )
+        {
+            Distance.TryParse(baseDistanceInput, out var distance);
+
+            Distance.TryParse(targetDistanceInput, out var targetDistance);
+
+            Assert.Equal(distance, targetDistance);
+        }
+
+        /// <summary>
+        /// Rudimentary verification that Distance.Equals does not always return true
+        /// </summary>
+        [Fact]
+        public void DistanceTryParseCheckNotEqual()
+        {
+            Distance.TryParse("9mm", out var mm);
+
+            Distance.TryParse("9cm", out var cm);
+
+            Assert.Equal("9mm", mm.ToString());
+            Assert.Equal("9cm", cm.ToString());
+            Assert.NotEqual(mm, cm);
         }
     }
 }

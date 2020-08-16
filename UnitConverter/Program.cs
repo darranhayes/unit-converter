@@ -12,19 +12,15 @@ namespace UnitConverter
 
             while (true)
             {
-                Console.WriteLine($"Enter your base distance unit from ({availableUnits})");
-                var validInputUnit = Distance.TryParseUnit(Console.ReadLine(), out var baseLengthUnit);
-                if (!validInputUnit) continue;
-
-                Console.WriteLine("Enter your distance in above unit");
-                var validDistance = decimal.TryParse(Console.ReadLine(), out var distanceAmount);
-                if (!validDistance) continue;
+                Console.WriteLine($"Enter your base distance using these units: ({availableUnits}), e.g., 99.9km");
+                var validInput = Distance.TryParse(Console.ReadLine(), out var baseLength);
+                if (!validInput) continue;
 
                 Console.WriteLine($"Enter your target unit from ({availableUnits})");
                 var validTargetUnit = Distance.TryParseUnit(Console.ReadLine(), out var targetLengthUnit);
                 if (!validTargetUnit) continue;
 
-                var targetDistance = Distance.Create(distanceAmount, baseLengthUnit).ConvertTo(targetLengthUnit);
+                var targetDistance = baseLength.ConvertTo(targetLengthUnit);
 
                 Console.WriteLine($"\nYour target distance is: {targetDistance.ToLongString()}\n");
             }
