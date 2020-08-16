@@ -8,20 +8,20 @@ namespace UnitConverter
     {
         private static void Main(string[] args)
         {
-            var availableUnits = string.Join(", ", Length.AllUnits.Select(unit => unit.ShortName));
+            var availableUnits = string.Join(", ", Distance.AllUnits.Select(unit => unit.ShortName));
 
             while (true)
             {
-                Console.WriteLine($"Enter your base unit in ({availableUnits})");
-                var validInputUnit = Length.TryParseUnit(Console.ReadLine(), out var baseLengthUnit);
+                Console.WriteLine($"Enter your base distance unit from ({availableUnits})");
+                var validInputUnit = Distance.TryParseUnit(Console.ReadLine(), out var baseLengthUnit);
                 if (!validInputUnit) continue;
 
                 Console.WriteLine("Enter your distance in above unit");
                 var validDistance = decimal.TryParse(Console.ReadLine(), out var distanceAmount);
                 if (!validDistance) continue;
 
-                Console.WriteLine($"Enter your target unit in ({availableUnits})");
-                var validTargetUnit = Length.TryParseUnit(Console.ReadLine(), out var targetLengthUnit);
+                Console.WriteLine($"Enter your target unit from ({availableUnits})");
+                var validTargetUnit = Distance.TryParseUnit(Console.ReadLine(), out var targetLengthUnit);
                 if (!validTargetUnit) continue;
 
                 var targetDistance = Distance.Create(distanceAmount, baseLengthUnit).ConvertTo(targetLengthUnit);

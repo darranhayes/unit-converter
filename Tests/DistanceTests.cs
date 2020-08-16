@@ -8,12 +8,12 @@ namespace Tests
     public class DistanceTests
     {
         /// <summary>
-        /// Show that converting distance in one unit of length equals the same real distance expressed in a different unit of length
+        /// Show that converting distance in one unit equals the same real distance expressed in a different unit
         /// </summary>
-        /// <param name="baseDistanceInput"></param>
-        /// <param name="baseUnitInput"></param>
+        /// <param name="distanceInput"></param>
+        /// <param name="unitInput"></param>
         /// <param name="targetDistanceInput"></param>
-        /// <param name="targetUnitInput"></param>
+        /// <param name="targetDistanceUnitInput"></param>
         [Theory]
         [InlineData(10, "mm", 1, "cm")]
         [InlineData(100, "cm", 1, "m")]
@@ -30,20 +30,20 @@ namespace Tests
         [InlineData(1, "yd", 3, "ft")]
         [InlineData(1, "mi", 1609.344, "m")]
         public void ConvertedDistancesAreEqual(
-            decimal baseDistanceInput, string baseUnitInput, 
-            decimal targetDistanceInput, string targetUnitInput
+            decimal distanceInput, string unitInput, 
+            decimal targetDistanceInput, string targetDistanceUnitInput
             )
         {
-            Length.TryParseUnit(baseUnitInput, out var @base);
-            var baseDistance = Distance.Create(baseDistanceInput, @base);
+            Distance.TryParseUnit(unitInput, out var @base);
+            var baseDistance = Distance.Create(distanceInput, @base);
 
-            Length.TryParseUnit(targetUnitInput, out var targetUnit);
+            Distance.TryParseUnit(targetDistanceUnitInput, out var targetUnit);
             var targetDistance = baseDistance.ConvertTo(targetUnit);
 
-            Assert.Equal(baseDistance.ToString(), $"{baseDistanceInput}{baseUnitInput}");
-            Assert.Equal(baseDistanceInput, baseDistance.Value);
+            Assert.Equal($"{distanceInput}{unitInput}", baseDistance.ToString());
+            Assert.Equal(distanceInput, baseDistance.Value);
 
-            Assert.Equal(targetDistance.ToString(), $"{targetDistanceInput}{targetUnitInput}");
+            Assert.Equal($"{targetDistanceInput}{targetDistanceUnitInput}", targetDistance.ToString());
             Assert.Equal(targetDistanceInput, targetDistance.Value);
             
             Assert.Equal(baseDistance, targetDistance);
@@ -55,15 +55,15 @@ namespace Tests
         [Fact]
         public void CheckNotEquals()
         {
-            Length.TryParseUnit("mm", out var @base);
-            var baseDistance = Distance.Create(9m, @base);
+            Distance.TryParseUnit("mm", out var unit);
+            var distance = Distance.Create(9m, unit);
 
-            Length.TryParseUnit("cm", out var targetUnit);
+            Distance.TryParseUnit("cm", out var targetUnit);
             var targetDistance = Distance.Create(9m, targetUnit);
 
-            Assert.Equal("9mm", baseDistance.ToString());
+            Assert.Equal("9mm", distance.ToString());
             Assert.Equal("9cm", targetDistance.ToString());
-            Assert.NotEqual(baseDistance, targetDistance);
+            Assert.NotEqual(distance, targetDistance);
         }
     }
 }
