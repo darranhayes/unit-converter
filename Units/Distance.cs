@@ -72,12 +72,12 @@ namespace Units
             return true;
         }
 
-        private static readonly Regex DistanceParser = new Regex(@"^(?<distance>[+-]?(([1-9][0-9]*)?[0-9](\.[0-9]*)?|\.[0-9]+))(\s*)(?<unit>\w+)$");
+        private static readonly Regex Parser = new Regex(@"^(?<distance>[+-]?(([1-9][0-9]*)?[0-9](\.[0-9]*)?|\.[0-9]+))(\s*)(?<unit>\w+)$");
 
         public static bool TryParse(string input, out Distance distance)
         {
-            var decimalPart = DistanceParser.Match(input).Groups["distance"];
-            var unitPart = DistanceParser.Match(input).Groups["unit"];
+            var decimalPart = Parser.Match(input).Groups["distance"];
+            var unitPart = Parser.Match(input).Groups["unit"];
 
             var valueStringMatched = Decimal.TryParse(decimalPart.Value, out var value);
             var unitStringMatched = Distance.TryParseUnit(unitPart.Value, out var unit);
