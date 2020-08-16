@@ -34,16 +34,16 @@ namespace Tests
             decimal targetDistanceInput, string targetUnitInput
             )
         {
-            Length.TryParse(baseUnitInput, out var @base);
+            Length.TryParseUnit(baseUnitInput, out var @base);
             var baseDistance = Distance.Create(baseDistanceInput, @base);
 
-            Length.TryParse(targetUnitInput, out var targetUnit);
+            Length.TryParseUnit(targetUnitInput, out var targetUnit);
             var targetDistance = baseDistance.ConvertTo(targetUnit);
 
-            Assert.Equal(baseUnitInput, baseDistance.Unit.ToString());
+            Assert.Equal(baseDistance.ToString(), $"{baseDistanceInput}{baseUnitInput}");
             Assert.Equal(baseDistanceInput, baseDistance.Value);
 
-            Assert.Equal(targetUnitInput, targetDistance.Unit.ToString());
+            Assert.Equal(targetDistance.ToString(), $"{targetDistanceInput}{targetUnitInput}");
             Assert.Equal(targetDistanceInput, targetDistance.Value);
             
             Assert.Equal(baseDistance, targetDistance);
@@ -55,16 +55,14 @@ namespace Tests
         [Fact]
         public void CheckNotEquals()
         {
-            Length.TryParse("mm", out var @base);
-
+            Length.TryParseUnit("mm", out var @base);
             var baseDistance = Distance.Create(9m, @base);
 
-            Length.TryParse("cm", out var targetUnit);
-
+            Length.TryParseUnit("cm", out var targetUnit);
             var targetDistance = Distance.Create(9m, targetUnit);
 
-            Assert.Equal(baseDistance.Value, targetDistance.Value);
-            Assert.NotEqual(baseDistance.Unit, targetDistance.Unit);
+            Assert.Equal("9mm", baseDistance.ToString());
+            Assert.Equal("9cm", targetDistance.ToString());
             Assert.NotEqual(baseDistance, targetDistance);
         }
     }

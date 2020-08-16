@@ -6,26 +6,23 @@ namespace Units
     {
         public static Distance Create(decimal distance, Length length) => new Distance(distance, length);
 
-        private Distance(decimal distance, Length length)
+        private Distance(decimal distance, Length lengthUnit)
         {
-            Value = distance;
-            Unit = length;
-            ValueInMeters = Value * Unit.Ratio;
+            ActualLength = Length.Create(distance, lengthUnit);
         }
 
         public Distance ConvertTo(Length target)
         {
-            var targetDistance = ValueInMeters / target.Ratio;
-
-            return new Distance(targetDistance, target);
+            var targetLength = ActualLength.ConvertTo(target);
+            return new Distance(targetLength.Value, target);
         }
 
-        public decimal Value { get; }
-        public Length Unit { get; }
-        private decimal ValueInMeters { get; }
+        public decimal Value => ActualLength.Value;
 
-        public override string ToString() => $"{Math.Round(Value, 2)}{Unit}";
-        public string ToLongString() => $"{Value}{Unit.ToLongString()}";
+        private Length ActualLength { get; }
+
+        public override string ToString() => ActualLength.ToString();
+        public string ToLongString() => ActualLength.ToLongString();
 
         public override bool Equals(object obj)
         {
@@ -36,8 +33,8 @@ namespace Units
             return Equals(unit);
         }
 
-        protected bool Equals(Distance other) => ValueInMeters == other.ValueInMeters;
+        protected bool Equals(Distance other) => ActualLength.Equals(other.ActualLength);
 
-        public override int GetHashCode() => ValueInMeters.GetHashCode();
+        public override int GetHashCode() => ActualLength.GetHashCode();
     }
 }

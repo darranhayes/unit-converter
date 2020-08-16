@@ -13,7 +13,7 @@ namespace UnitConverter
             while (true)
             {
                 Console.WriteLine($"Enter your base unit in ({availableUnits})");
-                var validInputUnit = Length.TryParse(Console.ReadLine(), out var baseLengthUnit);
+                var validInputUnit = Length.TryParseUnit(Console.ReadLine(), out var baseLengthUnit);
                 if (!validInputUnit) continue;
 
                 Console.WriteLine("Enter your distance in above unit");
@@ -21,7 +21,7 @@ namespace UnitConverter
                 if (!validDistance) continue;
 
                 Console.WriteLine($"Enter your target unit in ({availableUnits})");
-                var validTargetUnit = Length.TryParse(Console.ReadLine(), out var targetLengthUnit);
+                var validTargetUnit = Length.TryParseUnit(Console.ReadLine(), out var targetLengthUnit);
                 if (!validTargetUnit) continue;
 
                 var targetDistance = Distance.Create(distanceAmount, baseLengthUnit).ConvertTo(targetLengthUnit);
