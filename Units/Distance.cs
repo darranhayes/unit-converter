@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using static System.Decimal;
 
 namespace Units
 {
@@ -10,8 +11,8 @@ namespace Units
         public static Distance Millimeter = new Distance(1m, 0.001m, "mm", "Millimeter");
         public static Distance Centimeter = new Distance(1m, 0.01m, "cm", "Centimeter");
         public static Distance Inch = new Distance(1m, 0.0254m, "i", "Inch");
-        public static Distance Foot = new Distance(1m, 12m * Inch.Ratio, "ft", "Foot");
-        public static Distance Yard = new Distance(1m, 3m * Foot.Ratio, "yd", "Yard");
+        public static Distance Feet = new Distance(1m, 12m * Inch.Ratio, "ft", "Feet");
+        public static Distance Yard = new Distance(1m, 3m * Feet.Ratio, "yd", "Yard");
         public static Distance Meter = new Distance(1m, 1m, "m", "Meter");
         public static Distance Kilometer = new Distance(1m, 1000m, "km", "Kilometer");
         public static Distance Mile = new Distance(1m, 1609.344m, "mi", "Mile");
@@ -42,14 +43,14 @@ namespace Units
             Millimeter,
             Centimeter,
             Inch,
-            Foot,
+            Feet,
             Yard,
             Meter,
             Kilometer,
             Mile
         };
 
-        public bool IsUnit() => Value == 1m;
+        public Distance Unit => new Distance(1m, Ratio, ShortName, LongName);
 
         public Distance ConvertTo(Distance target)
         {
@@ -71,6 +72,7 @@ namespace Units
             }
 
             unitDistance = matchedUnit;
+
             return true;
         }
 
@@ -81,8 +83,8 @@ namespace Units
             var decimalPart = Parser.Match(input).Groups["distance"];
             var unitPart = Parser.Match(input).Groups["unit"];
 
-            var valueStringMatched = Decimal.TryParse(decimalPart.Value, out var value);
-            var unitStringMatched = Distance.TryParseUnit(unitPart.Value, out var unit);
+            var valueStringMatched = decimal.TryParse(decimalPart.Value, out var value);
+            var unitStringMatched = TryParseUnit(unitPart.Value, out var unit);
 
             if (!valueStringMatched || !unitStringMatched)
             {
@@ -91,13 +93,11 @@ namespace Units
             }
 
             distance = Create(value, unit);
+
             return true;
         }
 
-        public override int GetHashCode()
-        {
-            return ValueInMeters.GetHashCode();
-        }
+        public override int GetHashCode() => ValueInMeters.GetHashCode();
 
         public bool Equals(Distance other)
         {
@@ -110,8 +110,12 @@ namespace Units
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((Distance)obj);
+            return obj.GetType() == GetType() && Equals((Distance)obj);
+        }
+
+        public Distance ScaleBy(Distance targetUnit)
+        {
+            return new Distance(Value / targetUnit.Ratio, targetUnit.Ratio, targetUnit.ShortName, targetUnit.LongName);
         }
     }
 }

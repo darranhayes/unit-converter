@@ -1,21 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Text;
 
 namespace Units
 {
     public class Speed : IEquatable<Speed>
     {
+        public static Speed Mph = new Speed(Distance.Mile, Time.Hour);
+        public static Speed Kph = new Speed(Distance.Kilometer, Time.Hour);
+        public static Speed Ms = new Speed(Distance.Meter, Time.Second);
+
         public static Speed Create(Distance distance, Time time)
         {
-            if (!time.IsUnit())
-                throw new ArgumentException("Time must be a unit value of time", nameof(time));
+            return new Speed(distance, time.Unit);
+        }
 
-            return new Speed(distance, time);
+        public static Speed Create(decimal value, Speed unitSpeed)
+        {
+            var distance = Distance.Create(value, unitSpeed.Distance);
+            return Create(distance, unitSpeed.Time);
         }
 
         public Distance Distance { get; }
-
         public Time Time { get; }
 
         private Speed(Distance distance, Time time)
@@ -24,20 +31,17 @@ namespace Units
             Time = time;
         }
 
-        public Distance GetDistanceAfter(Time travelingFor)
+        public Speed ConvertTo(Speed target)
         {
-            var duration = travelingFor.ConvertTo(Time);
-            var distanceTraveled = Distance.Value * duration.Value;
+            var currentInMeters = Distance.ConvertTo(Distance.Meter);
+            var currentInSeconds = Time.ConvertTo(Time.Second);
 
-            return Distance.Create(distanceTraveled, Distance);
-        }
+            var metersPerSecond = currentInMeters.Value / currentInSeconds.Value;
 
-        public Time GetTimeAfter(Distance travelingFor)
-        {
-            var distance = travelingFor.ConvertTo(Distance);
-            var timeTaken = distance.Value / Distance.Value;
+            var metersPerTargetTime = Time.Create(metersPerSecond, Time.Second).ScaleTo(target.Time.Unit);
+            var targetDistancePerTargetTime = Distance.Create(metersPerTargetTime.Value, Distance.Meter).ScaleBy(target.Distance.Unit);
 
-            return Time.Create(timeTaken, Time);
+            return new Speed(targetDistancePerTargetTime, target.Time.Unit);
         }
 
         public bool Equals(Speed other)
@@ -51,12 +55,13 @@ namespace Units
             return Equals(current, target);
         }
 
+        public override string ToString() => $"{Distance} / {Time}";
+
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((Speed) obj);
+            return obj.GetType() == this.GetType() && Equals((Speed) obj);
         }
 
         public override int GetHashCode()

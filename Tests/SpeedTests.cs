@@ -9,22 +9,74 @@ namespace Tests
     public class SpeedTests
     {
         [Fact]
-        public void ExploringSpeed()
+        public void MphToKph()
         {
-            var currentSpeed = Speed.Create(Distance.Create(100m, Distance.Kilometer), Time.Hour);
+            var speed70Mph = Speed.Create(70m, Speed.Mph);
+            var expectedSpeedKph = Speed.Create(112.65408m, Speed.Kph);
 
-            var distanceTraveled = currentSpeed.GetDistanceAfter(Time.Create(2m, Time.Hour));
-            var timeTaken = currentSpeed.GetTimeAfter(Distance.Create(200m, Distance.Kilometer));
+            var actualSpeedKph = speed70Mph.ConvertTo(Speed.Kph);
+
+            Assert.Equal(expectedSpeedKph, actualSpeedKph);
+            Assert.Equal(expectedSpeedKph, speed70Mph);
+        }
+
+        [Fact]
+        public void MphToMs()
+        {
+            var speed70Mph = Speed.Create(70m, Speed.Mph);
+            var expectedSpeedMs = Speed.Create(31.2928m, Speed.Ms);
+
+            var actualSpeedMs = speed70Mph.ConvertTo(Speed.Ms);
+
+            Assert.Equal(expectedSpeedMs, actualSpeedMs);
+            Assert.Equal(expectedSpeedMs, speed70Mph);
+        }
+
+        [Fact]
+        public void FeetPerSecondToKpm()
+        {
+            var kmPerMinute = Speed.Create(Distance.Kilometer, Time.Minute);
+
+            var speed13Fps = Speed.Create(Distance.Create(13.6m, Distance.Feet), Time.Second);
+            var expectedSpeedKpm = Speed.Create(0.2487168m, kmPerMinute);
+
+            var actualSpeedKpm = speed13Fps.ConvertTo(kmPerMinute);
+
+            Assert.Equal(expectedSpeedKpm, actualSpeedKpm);
+            Assert.Equal(expectedSpeedKpm, speed13Fps);
         }
 
         [Theory]
         [InlineData("100km", "h", "62.137119223733396961743418436mi", "h")]
         [InlineData("62.137119223733396961743418436mi", "h", "100km", "h")]
         [InlineData("100m", "s", "6000m", "m")]
-        public void SpeedCreateAndConvertTo(string distanceInput, string unitTimeInput, string targetDistanceInput, string targetUnitTimeInput)
+        public void SpeedCreateAndEquals(string distanceInput, string unitTimeInput, string targetDistanceInput, string targetUnitTimeInput)
         {
             Distance.TryParse(distanceInput, out var distance);
             Time.TryParseUnit(unitTimeInput, out var time);
+
+            var speed = Speed.Create(distance, time);
+
+            Distance.TryParse(targetDistanceInput, out var targetDistance);
+            Time.TryParseUnit(targetUnitTimeInput, out var targetTime);
+
+            var targetSpeed = Speed.Create(targetDistance, targetTime);
+
+            Assert.Equal(speed, targetSpeed);
+        }
+
+        [Theory]
+        [InlineData("100km", "h", "mi", "h", "62.137119223733396961743418436mi", "h")]
+        [InlineData("62.137119223733396961743418436mi", "h", "km", "h", "100km", "h")]
+        [InlineData("100m", "s", "m", "m", "6000m", "m")]
+        public void SpeedCreateAndConvertTo(string distanceInput, string unitTimeInput, string targetDistanceUnit, string targetTimeUnit, string targetDistanceInput, string targetUnitTimeInput)
+        {
+            Distance.TryParse(distanceInput, out var distance);
+            Time.TryParseUnit(unitTimeInput, out var time);
+
+            Distance.TryParseUnit(targetDistanceUnit, out var distanceUnit);
+            Time.TryParseUnit(targetTimeUnit, out var timeUnit);
+            var targetSpeedUnit = Speed.Create(distanceUnit, timeUnit);
 
             var speed = Speed.Create(distance, time);
 

@@ -46,7 +46,7 @@ namespace Units
             Year
         };
 
-        public bool IsUnit() => Value == 1m;
+        public Time Unit => new Time(1m, Ratio, ShortName, LongName);
 
         public Time ConvertTo(Time target)
         {
@@ -78,8 +78,8 @@ namespace Units
             var decimalPart = Parser.Match(input).Groups["duration"];
             var unitPart = Parser.Match(input).Groups["unit"];
 
-            var valueStringMatched = Decimal.TryParse(decimalPart.Value, out var value);
-            var unitStringMatched = Time.TryParseUnit(unitPart.Value, out var unit);
+            var valueStringMatched = decimal.TryParse(decimalPart.Value, out var value);
+            var unitStringMatched = TryParseUnit(unitPart.Value, out var unit);
 
             if (!valueStringMatched || !unitStringMatched)
             {
@@ -88,13 +88,11 @@ namespace Units
             }
 
             duration = Create(value, unit);
+
             return true;
         }
 
-        public override int GetHashCode()
-        {
-            return ValueInSeconds.GetHashCode();
-        }
+        public override int GetHashCode() => ValueInSeconds.GetHashCode();
 
         public bool Equals(Time other)
         {
@@ -107,8 +105,12 @@ namespace Units
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((Time)obj);
+            return obj.GetType() == this.GetType() && Equals((Time)obj);
+        }
+
+        public Time ScaleTo(Time targetUnit)
+        {
+            return new Time(Value * targetUnit.Ratio, targetUnit.Ratio, targetUnit.ShortName, targetUnit.LongName);
         }
     }
 }
