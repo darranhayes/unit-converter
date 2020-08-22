@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using static System.Decimal;
 
 namespace Units
 {
-    public class Distance : IEquatable<Distance>
+    public class Distance : UnitOfMeasure<Distance>
     {
         public static Distance Millimeter = new Distance(1m, 0.001m, "mm", "Millimeter");
         public static Distance Centimeter = new Distance(1m, 0.01m, "cm", "Centimeter");
@@ -18,22 +17,26 @@ namespace Units
         public static Distance Mile = new Distance(1m, 1609.344m, "mi", "Mile");
 
         public static Distance Create(decimal value, Distance unit) =>
-            new Distance(value, unit.Ratio, unit.ShortName, unit.LongName);
+            new Distance(value, unit.Ratio, unit.ShortName, unit.LongName, unit.Aliases);
 
-        private Distance(decimal value, decimal ratio, string shortName, string longName)
+        private Distance(decimal value, decimal ratio, string shortName, string longName, params string[] aliases) : base(value, shortName, longName, aliases)
         {
-            Value = value;
             Ratio = ratio;
-            ShortName = shortName;
-            LongName = longName;
             ValueInMeters = value * ratio;
         }
 
-        public decimal Value { get; }
-        public string ShortName { get; }
-        public string LongName { get; }
+        public override Distance ConvertTo(Distance target)
+        {
+            var targetDistance = ValueInMeters / target.Ratio;
+
+            return Create(targetDistance, target);
+        }
+
         public override string ToString() => $"{Value:G29}{ShortName}";
-        public string ToLongString() => $"{Value:G29}{ShortName} ({LongName})";
+
+        public override string ToLongString() => $"{Value:G29}{ShortName} ({LongName})";
+
+        public override Distance Unit => new Distance(1m, Ratio, ShortName, LongName, Aliases);
 
         private decimal Ratio { get; }
         private decimal ValueInMeters { get; }
@@ -50,36 +53,24 @@ namespace Units
             Mile
         };
 
-        public Distance Unit => new Distance(1m, Ratio, ShortName, LongName);
-
-        public Distance ConvertTo(Distance target)
+        public static bool TryParseUnit(string inputDistance, out Distance unitDistance)
         {
-            var targetDistance = ValueInMeters / target.Ratio;
+            var input = inputDistance.ToLower();
+            unitDistance = null;
 
-            return Create(targetDistance, target);
-        }
-
-        public static bool TryParseUnit(string input, out Distance unitDistance)
-        {
-            var lowerInput = input.ToLower();
-
-            var matchedUnit = AllUnits.FirstOrDefault(unit => unit.ShortName.ToLowerInvariant() == lowerInput || unit.LongName.ToLowerInvariant() == lowerInput);
+            var matchedUnit = AllUnits.FirstOrDefault(unit => unit.ShortName.ToLowerInvariant() == input || unit.LongName.ToLowerInvariant() == input);
             
             if (matchedUnit == null)
-            {
-                unitDistance = null;
                 return false;
-            }
 
             unitDistance = matchedUnit;
-
             return true;
         }
 
-        private static readonly Regex Parser = new Regex(@"^(?<distance>[+-]?(([1-9][0-9]*)?[0-9](\.[0-9]*)?|\.[0-9]+))(\s*)(?<unit>\w+)$");
-
         public static bool TryParse(string input, out Distance distance)
         {
+            distance = null;
+
             var decimalPart = Parser.Match(input).Groups["distance"];
             var unitPart = Parser.Match(input).Groups["unit"];
 
@@ -87,19 +78,17 @@ namespace Units
             var unitStringMatched = TryParseUnit(unitPart.Value, out var unit);
 
             if (!valueStringMatched || !unitStringMatched)
-            {
-                distance = null;
                 return false;
-            }
 
             distance = Create(value, unit);
-
             return true;
         }
 
+        private static readonly Regex Parser = new Regex(@"^(?<distance>[+-]?(([1-9][0-9]*)?[0-9](\.[0-9]*)?|\.[0-9]+))(\s*)(?<unit>\w+)$");
+
         public override int GetHashCode() => ValueInMeters.GetHashCode();
 
-        public bool Equals(Distance other)
+        public override bool Equals(Distance other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;

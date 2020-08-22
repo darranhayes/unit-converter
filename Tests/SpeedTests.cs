@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Units;
+﻿using Units;
 using Xunit;
 
 namespace Tests
@@ -44,6 +41,26 @@ namespace Tests
 
             Assert.Equal(expectedSpeedKpm, actualSpeedKpm);
             Assert.Equal(expectedSpeedKpm, speed13Fps);
+        }
+
+        [Theory]
+        [InlineData("70mph", "km / h", "112.65408kmh")]
+        [InlineData("100kmh", "mi / h", "62.137119223733396961743418436mi / h")]
+        [InlineData("62.137119223733396961743418436mi / h", "kph", "100km / h")]
+        [InlineData("100ms", "m / m", "6000m / m")]
+        public void SpeedConversions(string speedInput, string targetUnitInput, string expectedConvertedSpeedInput)
+        {
+            Speed.TryParseUnit(targetUnitInput, out var targetUnit);
+            Speed.TryParse(speedInput, out var speed);
+            Speed.TryParse(expectedConvertedSpeedInput, out var expectedSpeed);
+
+            Assert.NotNull(targetUnit);
+            Assert.NotNull(speed);
+            Assert.NotNull(expectedSpeed);
+
+            var actualConvertedSpeed = speed.ConvertTo(targetUnit);
+
+            Assert.Equal(expectedSpeed, actualConvertedSpeed);
         }
 
         [Theory]

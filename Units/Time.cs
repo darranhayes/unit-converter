@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Units
 {
-    public class Time : IEquatable<Time>
+    public class Time : UnitOfMeasure<Time>
     {
         public static Time Millisecond = new Time(1m, 0.001m, "ms", "Millisecond");
         public static Time Second = new Time(1m, 1m, "s", "Second");
@@ -16,25 +15,27 @@ namespace Units
         public static Time Year = new Time(1m, 365m * Day.Ratio, "y", "Year");
 
         public static Time Create(decimal value, Time unit) =>
-            new Time(value, unit.Ratio, unit.ShortName, unit.LongName);
+            new Time(value, unit.Ratio, unit.ShortName, unit.LongName, unit.Aliases);
 
-        private Time(decimal value, decimal ratio, string shortName, string longName)
+        private Time(decimal value, decimal ratio, string shortName, string longName, params string[] aliases) : base(value, shortName, longName, aliases)
         {
-            Value = value;
             Ratio = ratio;
-            ShortName = shortName;
-            LongName = longName;
             ValueInSeconds = value * ratio;
         }
 
-        public decimal Value { get; }
-        public string ShortName { get; }
-        public string LongName { get; }
         public override string ToString() => $"{Value:G29}{ShortName}";
-        public string ToLongString() => $"{Value:G29}{ShortName} ({LongName})";
-        
+        public override string ToLongString() => $"{Value:G29}{ShortName} ({LongName})";
+        public override Time Unit => new Time(1m, Ratio, ShortName, LongName, Aliases);
+
         private decimal Ratio { get; }
         private decimal ValueInSeconds { get; }
+
+        public override Time ConvertTo(Time target)
+        {
+            var targetTime = ValueInSeconds / target.Ratio;
+
+            return Create(targetTime, target);
+        }
 
         public static readonly IEnumerable<Time> AllUnits = new[]
         {
@@ -46,35 +47,24 @@ namespace Units
             Year
         };
 
-        public Time Unit => new Time(1m, Ratio, ShortName, LongName);
-
-        public Time ConvertTo(Time target)
-        {
-            var targetTime = ValueInSeconds / target.Ratio;
-
-            return Create(targetTime, target);
-        }
-
-        public static bool TryParseUnit(string input, out Time value)
+        public static bool TryParseUnit(string input, out Time unitTime)
         {
             var lowerInput = input.ToLower();
+            unitTime = null;
 
             var matchedUnit = AllUnits.FirstOrDefault(unit => unit.ShortName.ToLowerInvariant() == lowerInput || unit.LongName.ToLowerInvariant() == lowerInput);
 
             if (matchedUnit == null)
-            {
-                value = null;
                 return false;
-            }
 
-            value = matchedUnit;
+            unitTime = matchedUnit;
             return true;
         }
 
-        private static readonly Regex Parser = new Regex(@"^(?<duration>[+-]?(([1-9][0-9]*)?[0-9](\.[0-9]*)?|\.[0-9]+))(\s*)(?<unit>\w+)$");
-
         public static bool TryParse(string input, out Time duration)
         {
+            duration = null;
+
             var decimalPart = Parser.Match(input).Groups["duration"];
             var unitPart = Parser.Match(input).Groups["unit"];
 
@@ -82,19 +72,17 @@ namespace Units
             var unitStringMatched = TryParseUnit(unitPart.Value, out var unit);
 
             if (!valueStringMatched || !unitStringMatched)
-            {
-                duration = null;
                 return false;
-            }
 
             duration = Create(value, unit);
-
             return true;
         }
 
+        private static readonly Regex Parser = new Regex(@"^(?<duration>[+-]?(([1-9][0-9]*)?[0-9](\.[0-9]*)?|\.[0-9]+))(\s*)(?<unit>\w+)$");
+
         public override int GetHashCode() => ValueInSeconds.GetHashCode();
 
-        public bool Equals(Time other)
+        public override bool Equals(Time other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
