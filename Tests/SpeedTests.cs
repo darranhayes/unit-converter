@@ -66,17 +66,13 @@ namespace Tests
         }
 
         [Theory]
-        [InlineData("100km", "h", "mi", "h", "62.137119223733396961743418436mi", "h")]
-        [InlineData("62.137119223733396961743418436mi", "h", "km", "h", "100km", "h")]
-        [InlineData("100m", "s", "m", "m", "6000m", "m")]
-        public void SpeedCreateAndConvertTo(string distanceInput, string unitTimeInput, string targetDistanceUnit, string targetTimeUnit, string targetDistanceInput, string targetUnitTimeInput)
+        [InlineData("100km", "h", "62.137119223733396961743418436mi", "h")]
+        [InlineData("62.137119223733396961743418436mi", "h", "100km", "h")]
+        [InlineData("100m", "s", "6000m", "m")]
+        public void SpeedCreateAndConvertTo(string distanceInput, string unitTimeInput, string targetDistanceInput, string targetUnitTimeInput)
         {
             Distance.TryParse(distanceInput, out var distance);
             Time.TryParseUnit(unitTimeInput, out var time);
-
-            Distance.TryParseUnit(targetDistanceUnit, out var distanceUnit);
-            Time.TryParseUnit(targetTimeUnit, out var timeUnit);
-            var targetSpeedUnit = Speed.Create(distanceUnit, timeUnit);
 
             var speed = Speed.Create(distance, time);
 

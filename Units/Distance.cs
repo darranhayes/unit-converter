@@ -112,10 +112,5 @@ namespace Units
             if (ReferenceEquals(this, obj)) return true;
             return obj.GetType() == GetType() && Equals((Distance)obj);
         }
-
-        public Distance ScaleBy(Distance targetUnit)
-        {
-            return new Distance(Value / targetUnit.Ratio, targetUnit.Ratio, targetUnit.ShortName, targetUnit.LongName);
-        }
     }
 }

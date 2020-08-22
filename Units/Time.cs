@@ -107,10 +107,5 @@ namespace Units
             if (ReferenceEquals(this, obj)) return true;
             return obj.GetType() == this.GetType() && Equals((Time)obj);
         }
-
-        public Time ScaleTo(Time targetUnit)
-        {
-            return new Time(Value * targetUnit.Ratio, targetUnit.Ratio, targetUnit.ShortName, targetUnit.LongName);
-        }
     }
 }

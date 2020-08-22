@@ -31,17 +31,22 @@ namespace Units
             Time = time;
         }
 
+        private static decimal GetConversionFactor(Speed s)
+        {
+            var distance = s.Distance.Unit.ConvertTo(Distance.Meter).Value;
+            var time = s.Time.Unit.ConvertTo(Time.Second).Value;
+
+            return distance / time;
+        }
+
         public Speed ConvertTo(Speed target)
         {
-            var currentInMeters = Distance.ConvertTo(Distance.Meter);
-            var currentInSeconds = Time.ConvertTo(Time.Second);
+            var currentFactor = GetConversionFactor(this);
+            var targetFactor = GetConversionFactor(target);
 
-            var metersPerSecond = currentInMeters.Value / currentInSeconds.Value;
+            var targetDistance = Distance.Value * currentFactor / targetFactor;
 
-            var metersPerTargetTime = Time.Create(metersPerSecond, Time.Second).ScaleTo(target.Time.Unit);
-            var targetDistancePerTargetTime = Distance.Create(metersPerTargetTime.Value, Distance.Meter).ScaleBy(target.Distance.Unit);
-
-            return new Speed(targetDistancePerTargetTime, target.Time.Unit);
+            return new Speed(Distance.Create(targetDistance, target.Distance.Unit), target.Time.Unit);
         }
 
         public bool Equals(Speed other)
