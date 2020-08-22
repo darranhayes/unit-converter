@@ -1,26 +1,17 @@
 ﻿namespace Units
 {
+    /// <summary>
+    /// Acceleration in meters per second per second (ms^-2, m/s^2)
+    /// </summary>
     public class Acceleration
     {
-        public static Acceleration Create(Speed speedChangePerUnitOfTime) => new Acceleration(speedChangePerUnitOfTime);
-        public static Acceleration Create(decimal metersPerSecond) => new Acceleration(Speed.Create(metersPerSecond, Speed.Ms));
-
-        private Acceleration(Speed speedChangePerUnitOfTime)
+        public static Velocity Accelerate(Meter metersPerSecondSquared, Second durationOfAccelerationInSeconds, Velocity initialVelocity)
         {
-            _velocityChangePerSecond = speedChangePerUnitOfTime.ConvertTo(Speed.Ms);
-        }
+            var velocityInMs = initialVelocity.ConvertTo(Velocity.Ms);
 
-        private readonly Speed _velocityChangePerSecond;
+            var newVelocityInMs = velocityInMs.Value + (metersPerSecondSquared.Value * durationOfAccelerationInSeconds.Value);
 
-        public Speed Accelerate(Speed speed, Time duration)
-        {
-            var durationInSeconds = duration.ConvertTo(Time.Second);
-
-            var speedInMs = speed.ConvertTo(Speed.Ms);
-
-            var newSpeedInMs = speedInMs.Value + (_velocityChangePerSecond.Value * durationInSeconds.Value);
-
-            return Speed.Create(newSpeedInMs, Speed.Ms).ConvertTo(speed.Unit);
+            return Velocity.Create(newVelocityInMs, Velocity.Ms).ConvertTo(initialVelocity.Unit);
         }
     }
 }

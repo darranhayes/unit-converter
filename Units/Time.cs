@@ -5,6 +5,15 @@ using System.Text.RegularExpressions;
 
 namespace Units
 {
+    public class Second : Time
+    {
+        public static Second Create(decimal seconds) => new Second(seconds);
+
+        protected Second(decimal seconds) : base(seconds, 1m, Time.Second.ShortName, Time.Second.LongName, Time.Second.Aliases)
+        {
+        }
+    }
+
     public class Time : UnitOfMeasure<Time>
     {
         public static Time Millisecond = new Time(1m, 0.001m, "ms", "Millisecond");
@@ -17,7 +26,7 @@ namespace Units
         public static Time Create(decimal value, Time unit) =>
             new Time(value, unit.Ratio, unit.ShortName, unit.LongName, unit.Aliases);
 
-        private Time(decimal value, decimal ratio, string shortName, string longName, params string[] aliases) : base(value, shortName, longName, aliases)
+        protected Time(decimal value, decimal ratio, string shortName, string longName, params string[] aliases) : base(value, shortName, longName, aliases)
         {
             Ratio = ratio;
             ValueInSeconds = value * ratio;

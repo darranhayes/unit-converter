@@ -5,24 +5,24 @@ using System.Text.RegularExpressions;
 
 namespace Units
 {
-    public class Speed : UnitOfMeasure<Speed>
+    public class Velocity : UnitOfMeasure<Velocity>
     {
-        public static Speed Mph = new Speed(Distance.Mile, Time.Hour, "mph");
-        public static Speed Kph = new Speed(Distance.Kilometer, Time.Hour, "kph", "kmh");
-        public static Speed Ms = new Speed(Distance.Meter, Time.Second, "ms");
+        public static Velocity Mph = new Velocity(Distance.Mile, Time.Hour, "mph");
+        public static Velocity Kph = new Velocity(Distance.Kilometer, Time.Hour, "kph", "kmh");
+        public static Velocity Ms = new Velocity(Distance.Meter, Time.Second, "ms");
 
-        public static Speed Create(Distance distance, Time time)
+        public static Velocity Create(Distance distance, Time time)
         {
-            return new Speed(distance, time.Unit);
+            return new Velocity(distance, time.Unit);
         }
 
-        public static Speed Create(decimal value, Speed unitSpeed)
+        public static Velocity Create(decimal value, Velocity unitVelocity)
         {
-            var distance = Distance.Create(value, unitSpeed.Distance);
-            return Create(distance, unitSpeed.Time);
+            var distance = Distance.Create(value, unitVelocity.Distance);
+            return Create(distance, unitVelocity.Time);
         }
 
-        private Speed(Distance distance, Time time, params string[] aliases) : base(distance.Value, $"{distance.Unit.ShortName} / {time.Unit.ShortName}", $"{distance.Unit.LongName} / {time.Unit.LongName}", aliases)
+        private Velocity(Distance distance, Time time, params string[] aliases) : base(distance.Value, $"{distance.Unit.ShortName} / {time.Unit.ShortName}", $"{distance.Unit.LongName} / {time.Unit.LongName}", aliases)
         {
             Distance = distance;
             Time = time;
@@ -30,12 +30,12 @@ namespace Units
 
         public override string ToString() => $"{Distance.Value} {ShortName}";
         public override string ToLongString() => $"{Distance.Value} {LongName}";
-        public override Speed Unit => new Speed(Distance.Unit, Time.Unit, Aliases);
+        public override Velocity Unit => new Velocity(Distance.Unit, Time.Unit, Aliases);
 
         private Distance Distance { get; }
         private Time Time { get; }
 
-        public override Speed ConvertTo(Speed target)
+        public override Velocity ConvertTo(Velocity target)
         {
             if (Unit.Equals(target.Unit))
                 return this;
@@ -45,7 +45,7 @@ namespace Units
 
             var targetDistance = Distance.Value * currentFactor / targetFactor;
 
-            return new Speed(Distance.Create(targetDistance, target.Distance.Unit), target.Time.Unit);
+            return new Velocity(Distance.Create(targetDistance, target.Distance.Unit), target.Time.Unit);
         }
 
         public Distance GetDistanceAfter(Time travelingFor)
@@ -64,14 +64,14 @@ namespace Units
             return Time.Create(timeTaken, Time);
         }
 
-        public static readonly IEnumerable<Speed> AllUnits = new[]
+        public static readonly IEnumerable<Velocity> AllUnits = new[]
         {
             Mph,
             Kph,
             Ms
         };
 
-        private static decimal GetConversionFactor(Speed s)
+        private static decimal GetConversionFactor(Velocity s)
         {
             var distance = s.Distance.Unit.ConvertTo(Distance.Meter).Value;
             var time = s.Time.Unit.ConvertTo(Time.Second).Value;
@@ -79,10 +79,10 @@ namespace Units
             return distance / time;
         }
 
-        public static bool TryParseUnit(string unitName, out Speed unitSpeed)
+        public static bool TryParseUnit(string unitName, out Velocity unitVelocity)
         {
             var input = unitName.ToLower();
-            unitSpeed = null;
+            unitVelocity = null;
 
             bool AliasMatch(IEnumerable<string> aliases) => aliases.Any(a => a.ToLower() == input);
 
@@ -100,20 +100,20 @@ namespace Units
 
                 if (!distanceUnitFound || !timeUnitFound) return false;
 
-                unitSpeed = Create(distanceUnit, timeUnit);
+                unitVelocity = Create(distanceUnit, timeUnit);
                 return true;
             }
 
-            unitSpeed = matchedUnit;
+            unitVelocity = matchedUnit;
             return true;
         }
 
-        public static bool TryParse(string inputSpeed, out Speed speed)
+        public static bool TryParse(string inputVelocity, out Velocity velocity)
         {
-            speed = null;
+            velocity = null;
 
-            var decimalPart = Parser.Match(inputSpeed).Groups["speed"];
-            var unitPart = Parser.Match(inputSpeed).Groups["unit"];
+            var decimalPart = Parser.Match(inputVelocity).Groups["velocity"];
+            var unitPart = Parser.Match(inputVelocity).Groups["unit"];
 
             var valueStringMatched = decimal.TryParse(decimalPart.Value, out var value);
             var unitStringMatched = TryParseUnit(unitPart.Value, out var unit);
@@ -121,15 +121,15 @@ namespace Units
             if (!valueStringMatched || !unitStringMatched)
                 return false;
 
-            speed = Create(value, unit);
+            velocity = Create(value, unit);
             return false;
         }
 
-        private static readonly Regex Parser = new Regex(@"^(?<speed>[+-]?(([1-9][0-9]*)?[0-9](\.[0-9]*)?|\.[0-9]+))(\s*)(?<unit>[\/\w\s]+)$");
+        private static readonly Regex Parser = new Regex(@"^(?<velocity>[+-]?(([1-9][0-9]*)?[0-9](\.[0-9]*)?|\.[0-9]+))(\s*)(?<unit>[\/\w\s]+)$");
 
         public override int GetHashCode() => HashCode.Combine(Distance, Time);
 
-        public override bool Equals(Speed other)
+        public override bool Equals(Velocity other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -144,7 +144,7 @@ namespace Units
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == this.GetType() && Equals((Speed) obj);
+            return obj.GetType() == this.GetType() && Equals((Velocity) obj);
         }
     }
 }

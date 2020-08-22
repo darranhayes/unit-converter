@@ -1,10 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Units
 {
+
+    public class Meter : Distance
+    {
+        public static Meter Create(decimal meters) => new Meter(meters);
+
+        protected Meter(decimal meters) : base(meters, 1m, Distance.Meter.ShortName, Distance.Meter.LongName, Distance.Meter.Aliases)
+        {
+        }
+    }
+
     public class Distance : UnitOfMeasure<Distance>
     {
         public static Distance Millimeter = new Distance(1m, 0.001m, "mm", "Millimeter");
@@ -19,7 +30,7 @@ namespace Units
         public static Distance Create(decimal value, Distance unit) =>
             new Distance(value, unit.Ratio, unit.ShortName, unit.LongName, unit.Aliases);
 
-        private Distance(decimal value, decimal ratio, string shortName, string longName, params string[] aliases) : base(value, shortName, longName, aliases)
+        protected Distance(decimal value, decimal ratio, string shortName, string longName, params string[] aliases) : base(value, shortName, longName, aliases)
         {
             Ratio = ratio;
             ValueInMeters = value * ratio;
