@@ -32,6 +32,9 @@ namespace Units
 
         public override Time ConvertTo(Time target)
         {
+            if (Unit.Equals(target.Unit))
+                return this;
+
             var targetTime = ValueInSeconds / target.Ratio;
 
             return Create(targetTime, target);

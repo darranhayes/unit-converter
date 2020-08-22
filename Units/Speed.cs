@@ -37,12 +37,31 @@ namespace Units
 
         public override Speed ConvertTo(Speed target)
         {
+            if (Unit.Equals(target.Unit))
+                return this;
+
             var currentFactor = GetConversionFactor(this);
             var targetFactor = GetConversionFactor(target);
 
             var targetDistance = Distance.Value * currentFactor / targetFactor;
 
             return new Speed(Distance.Create(targetDistance, target.Distance.Unit), target.Time.Unit);
+        }
+
+        public Distance GetDistanceAfter(Time travelingFor)
+        {
+            var duration = travelingFor.ConvertTo(Time);
+            var distanceTraveled = Distance.Value * duration.Value;
+
+            return Distance.Create(distanceTraveled, Distance);
+        }
+
+        public Time GetTimeTaken(Distance travelingFor)
+        {
+            var distance = travelingFor.ConvertTo(Distance);
+            var timeTaken = distance.Value / Distance.Value;
+
+            return Time.Create(timeTaken, Time);
         }
 
         public static readonly IEnumerable<Speed> AllUnits = new[]
@@ -77,7 +96,7 @@ namespace Units
                     return false;
 
                 var distanceUnitFound = Distance.TryParseUnit(parts[0].Trim(), out var distanceUnit);
-                var timeUnitFound = Units.Time.TryParseUnit(parts[1].Trim(), out var timeUnit);
+                var timeUnitFound = Time.TryParseUnit(parts[1].Trim(), out var timeUnit);
 
                 if (!distanceUnitFound || !timeUnitFound) return false;
 

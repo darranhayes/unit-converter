@@ -27,6 +27,9 @@ namespace Units
 
         public override Distance ConvertTo(Distance target)
         {
+            if (Unit.Equals(target.Unit))
+                return this;
+
             var targetDistance = ValueInMeters / target.Ratio;
 
             return Create(targetDistance, target);

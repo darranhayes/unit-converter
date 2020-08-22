@@ -1,4 +1,5 @@
-﻿using Units;
+﻿using System;
+using Units;
 using Xunit;
 
 namespace Tests
@@ -43,11 +44,43 @@ namespace Tests
             Assert.Equal(expectedSpeedKpm, speed13Fps);
         }
 
+        [Fact]
+        public void DistanceTraveled()
+        {
+            var kmh = Speed.Create(70m, Speed.Kph);
+
+            var distance = kmh.GetDistanceAfter(Time.Create(5m, Time.Hour));
+
+            Assert.Equal(Distance.Create(350m, Distance.Kilometer), distance);
+        }
+
+        [Fact]
+        public void TimeTaken()
+        {
+            var kmh = Speed.Create(70m, Speed.Kph);
+
+            var duration = kmh.GetTimeTaken(Distance.Create(350m, Distance.Kilometer));
+
+            Assert.Equal(Time.Create(5, Time.Hour), duration);
+        }
+
+        [Fact]
+        public void Accelerate()
+        {
+            var currentSpeed = Speed.Create(0m, Speed.Ms);
+            var acceleration = Acceleration.Create(10m);
+
+            var newSpeed = acceleration.Accelerate(currentSpeed, Time.Create(3m, Time.Second));
+
+            Assert.Equal(Speed.Create(30m, Speed.Ms), newSpeed);
+        }
+
         [Theory]
         [InlineData("70mph", "km / h", "112.65408kmh")]
         [InlineData("100kmh", "mi / h", "62.137119223733396961743418436mi / h")]
         [InlineData("62.137119223733396961743418436mi / h", "kph", "100km / h")]
         [InlineData("100ms", "m / m", "6000m / m")]
+        [InlineData("100ms", "m / s", "100m / s")]
         public void SpeedConversions(string speedInput, string targetUnitInput, string expectedConvertedSpeedInput)
         {
             Speed.TryParseUnit(targetUnitInput, out var targetUnit);
