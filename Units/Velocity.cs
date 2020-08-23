@@ -11,32 +11,35 @@ namespace Units
         public static Velocity Kph = new Velocity(Distance.Kilometer, Time.Hour, "kph", "kmh");
         public static Velocity Ms = new Velocity(Distance.Meter, Time.Second, "ms");
 
-        public static Velocity Create(Distance distance, Time time)
+        public static readonly IEnumerable<Velocity> AllUnits = new[]
         {
-            return new Velocity(distance, time.Unit);
-        }
+            Mph,
+            Kph,
+            Ms
+        };
 
-        public static Velocity Create(decimal value, Velocity unitVelocity)
-        {
-            var distance = Distance.Create(value, unitVelocity.Distance);
-            return Create(distance, unitVelocity.Time);
-        }
+        public static Velocity Create(Distance distance, Time time) =>
+            new Velocity(distance, time.Unit);
 
-        protected Velocity(Distance distance, Time time, params string[] aliases) : base(distance.Value, $"{distance.Unit.ShortName} / {time.Unit.ShortName}", $"{distance.Unit.LongName} / {time.Unit.LongName}", aliases)
+        public static Velocity Create(decimal value, Velocity unitVelocity) =>
+            Create(Distance.Create(value, unitVelocity.Distance), unitVelocity.Time);
+
+        protected Velocity(Distance distance, Time time, params string[] aliases) :
+            base(distance.Value, 
+                $"{distance.Unit.ShortName}/{time.Unit.ShortName}", 
+                $"{distance.Unit.LongName} per {time.Unit.LongName}", 
+                distance.Value * GetConversionFactor(distance, time), 
+                aliases)
         {
             Distance = distance;
             Time = time;
-
-            ValueInMetersPerSecond = Distance.Value * GetConversionFactor(Distance, Time);
         }
 
-        public override string ToString() => $"{Distance.Value} {ShortName}";
-        public override string ToLongString() => $"{Distance.Value} {LongName}";
         public override Velocity Unit => new Velocity(Distance.Unit, Time.Unit, Aliases);
 
         private Distance Distance { get; }
+
         private Time Time { get; }
-        private decimal ValueInMetersPerSecond { get; }
 
         public override Velocity ConvertTo(Velocity target)
         {
@@ -45,7 +48,7 @@ namespace Units
 
             var conversionFactor = GetConversionFactor(target.Distance, target.Time);
 
-            var targetDistance = ValueInMetersPerSecond / conversionFactor;
+            var targetDistance = ValueInBaseUnit / conversionFactor;
 
             return new Velocity(Distance.Create(targetDistance, target.Distance.Unit), target.Time.Unit);
         }
@@ -65,13 +68,6 @@ namespace Units
 
             return Time.Create(timeTaken, Time);
         }
-
-        public static readonly IEnumerable<Velocity> AllUnits = new[]
-        {
-            Mph,
-            Kph,
-            Ms
-        };
 
         private static decimal GetConversionFactor(Distance d, Time t)
         {
@@ -128,22 +124,5 @@ namespace Units
         }
 
         private static readonly Regex Parser = new Regex(@"^(?<velocity>[+-]?(([1-9][0-9]*)?[0-9](\.[0-9]*)?|\.[0-9]+))(\s*)(?<unit>[\/\w\s]+)$");
-
-        public override int GetHashCode() => HashCode.Combine(Distance, Time);
-
-        public override bool Equals(Velocity other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-
-            return Equals(Math.Round(ValueInMetersPerSecond, 24), Math.Round(other.ValueInMetersPerSecond, 24));
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == this.GetType() && Equals((Velocity) obj);
-        }
     }
 }

@@ -9,9 +9,7 @@ namespace Units
     {
         public static Second Create(decimal seconds) => new Second(seconds);
 
-        protected Second(decimal seconds) : base(seconds, 1m, Time.Second.ShortName, Time.Second.LongName, Time.Second.Aliases)
-        {
-        }
+        protected Second(decimal seconds) : base(seconds, 1m, Time.Second.ShortName, Time.Second.LongName, Time.Second.Aliases) { }
     }
 
     public class Time : UnitOfMeasure<Time>
@@ -23,32 +21,6 @@ namespace Units
         public static Time Day = new Time(1m, 24m * Hour.Ratio, "d", "Day");
         public static Time Year = new Time(1m, 365m * Day.Ratio, "y", "Year");
 
-        public static Time Create(decimal value, Time unit) =>
-            new Time(value, unit.Ratio, unit.ShortName, unit.LongName, unit.Aliases);
-
-        protected Time(decimal value, decimal ratio, string shortName, string longName, params string[] aliases) : base(value, shortName, longName, aliases)
-        {
-            Ratio = ratio;
-            ValueInSeconds = value * ratio;
-        }
-
-        public override string ToString() => $"{Value:G29}{ShortName}";
-        public override string ToLongString() => $"{Value:G29}{ShortName} ({LongName})";
-        public override Time Unit => new Time(1m, Ratio, ShortName, LongName, Aliases);
-
-        private decimal Ratio { get; }
-        private decimal ValueInSeconds { get; }
-
-        public override Time ConvertTo(Time target)
-        {
-            if (Unit.Equals(target.Unit))
-                return this;
-
-            var targetTime = ValueInSeconds / target.Ratio;
-
-            return Create(targetTime, target);
-        }
-
         public static readonly IEnumerable<Time> AllUnits = new[]
         {
             Millisecond,
@@ -58,6 +30,29 @@ namespace Units
             Day,
             Year
         };
+
+        public static Time Create(decimal value, Time unit) =>
+            new Time(value, unit.Ratio, unit.ShortName, unit.LongName, unit.Aliases);
+
+        protected Time(decimal value, decimal ratio, string shortName, string longName, params string[] aliases) :
+            base(value, shortName, longName, value * ratio, aliases)
+        {
+            Ratio = ratio;
+        }
+
+        public override Time Unit => new Time(1m, Ratio, ShortName, LongName, Aliases);
+
+        private decimal Ratio { get; }
+
+        public override Time ConvertTo(Time target)
+        {
+            if (Unit.Equals(target.Unit))
+                return this;
+
+            var targetTime = ValueInBaseUnit / target.Ratio;
+
+            return Create(targetTime, target);
+        }
 
         public static bool TryParseUnit(string input, out Time unitTime)
         {
@@ -91,21 +86,5 @@ namespace Units
         }
 
         private static readonly Regex Parser = new Regex(@"^(?<duration>[+-]?(([1-9][0-9]*)?[0-9](\.[0-9]*)?|\.[0-9]+))(\s*)(?<unit>\w+)$");
-
-        public override int GetHashCode() => ValueInSeconds.GetHashCode();
-
-        public override bool Equals(Time other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return ValueInSeconds == other.ValueInSeconds;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == this.GetType() && Equals((Time)obj);
-        }
     }
 }

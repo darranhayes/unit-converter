@@ -11,9 +11,7 @@ namespace Units
     {
         public static Meter Create(decimal meters) => new Meter(meters);
 
-        protected Meter(decimal meters) : base(meters, 1m, Distance.Meter.ShortName, Distance.Meter.LongName, Distance.Meter.Aliases)
-        {
-        }
+        protected Meter(decimal meters) : base(meters, 1m, Distance.Meter.ShortName, Distance.Meter.LongName, Distance.Meter.Aliases) { }
     }
 
     public class Distance : UnitOfMeasure<Distance>
@@ -27,34 +25,6 @@ namespace Units
         public static Distance Kilometer = new Distance(1m, 1000m, "km", "Kilometer");
         public static Distance Mile = new Distance(1m, 1609.344m, "mi", "Mile");
 
-        public static Distance Create(decimal value, Distance unit) =>
-            new Distance(value, unit.Ratio, unit.ShortName, unit.LongName, unit.Aliases);
-
-        protected Distance(decimal value, decimal ratio, string shortName, string longName, params string[] aliases) : base(value, shortName, longName, aliases)
-        {
-            Ratio = ratio;
-            ValueInMeters = value * ratio;
-        }
-
-        public override Distance ConvertTo(Distance target)
-        {
-            if (Unit.Equals(target.Unit))
-                return this;
-
-            var targetDistance = ValueInMeters / target.Ratio;
-
-            return Create(targetDistance, target);
-        }
-
-        public override string ToString() => $"{Value:G29}{ShortName}";
-
-        public override string ToLongString() => $"{Value:G29}{ShortName} ({LongName})";
-
-        public override Distance Unit => new Distance(1m, Ratio, ShortName, LongName, Aliases);
-
-        private decimal Ratio { get; }
-        private decimal ValueInMeters { get; }
-
         public static readonly IEnumerable<Distance> AllUnits = new[]
         {
             Millimeter,
@@ -66,6 +36,29 @@ namespace Units
             Kilometer,
             Mile
         };
+
+        public static Distance Create(decimal value, Distance unit) =>
+            new Distance(value, unit.Ratio, unit.ShortName, unit.LongName, unit.Aliases);
+
+        protected Distance(decimal value, decimal ratio, string shortName, string longName, params string[] aliases) :
+            base(value, shortName, longName, value * ratio, aliases)
+        {
+            Ratio = ratio;
+        }
+
+        public override Distance ConvertTo(Distance target)
+        {
+            if (Unit.Equals(target.Unit))
+                return this;
+
+            var targetDistance = ValueInBaseUnit / target.Ratio;
+
+            return Create(targetDistance, target);
+        }
+
+        public override Distance Unit => new Distance(1m, Ratio, ShortName, LongName, Aliases);
+
+        private decimal Ratio { get; }
 
         public static bool TryParseUnit(string inputDistance, out Distance unitDistance)
         {
@@ -99,21 +92,5 @@ namespace Units
         }
 
         private static readonly Regex Parser = new Regex(@"^(?<distance>[+-]?(([1-9][0-9]*)?[0-9](\.[0-9]*)?|\.[0-9]+))(\s*)(?<unit>\w+)$");
-
-        public override int GetHashCode() => ValueInMeters.GetHashCode();
-
-        public override bool Equals(Distance other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return ValueInMeters == other.ValueInMeters;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((Distance)obj);
-        }
     }
 }
