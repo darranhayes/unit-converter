@@ -22,10 +22,12 @@ namespace Units
             return Create(distance, unitVelocity.Time);
         }
 
-        private Velocity(Distance distance, Time time, params string[] aliases) : base(distance.Value, $"{distance.Unit.ShortName} / {time.Unit.ShortName}", $"{distance.Unit.LongName} / {time.Unit.LongName}", aliases)
+        protected Velocity(Distance distance, Time time, params string[] aliases) : base(distance.Value, $"{distance.Unit.ShortName} / {time.Unit.ShortName}", $"{distance.Unit.LongName} / {time.Unit.LongName}", aliases)
         {
             Distance = distance;
             Time = time;
+
+            ValueInMetersPerSecond = Distance.Value * GetConversionFactor(Distance, Time);
         }
 
         public override string ToString() => $"{Distance.Value} {ShortName}";
@@ -34,16 +36,16 @@ namespace Units
 
         private Distance Distance { get; }
         private Time Time { get; }
+        private decimal ValueInMetersPerSecond { get; }
 
         public override Velocity ConvertTo(Velocity target)
         {
             if (Unit.Equals(target.Unit))
                 return this;
 
-            var currentFactor = GetConversionFactor(this);
-            var targetFactor = GetConversionFactor(target);
+            var conversionFactor = GetConversionFactor(target.Distance, target.Time);
 
-            var targetDistance = Distance.Value * currentFactor / targetFactor;
+            var targetDistance = ValueInMetersPerSecond / conversionFactor;
 
             return new Velocity(Distance.Create(targetDistance, target.Distance.Unit), target.Time.Unit);
         }
@@ -71,10 +73,10 @@ namespace Units
             Ms
         };
 
-        private static decimal GetConversionFactor(Velocity s)
+        private static decimal GetConversionFactor(Distance d, Time t)
         {
-            var distance = s.Distance.Unit.ConvertTo(Distance.Meter).Value;
-            var time = s.Time.Unit.ConvertTo(Time.Second).Value;
+            var distance = d.Unit.ConvertTo(Distance.Meter).Value;
+            var time = t.Unit.ConvertTo(Time.Second).Value;
 
             return distance / time;
         }
@@ -134,10 +136,7 @@ namespace Units
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            var current = Distance.Value / Time.ConvertTo(Time.Second).Value;
-            var target = other.Distance.ConvertTo(Distance).Value / other.Time.ConvertTo(Time.Second).Value;
-
-            return Equals(Math.Round(current, 22), Math.Round(target, 22));
+            return Equals(Math.Round(ValueInMetersPerSecond, 24), Math.Round(other.ValueInMetersPerSecond, 24));
         }
 
         public override bool Equals(object obj)
