@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Units
 {
-    public abstract class UnitOfMeasure<T> : IEquatable<T> where T:UnitOfMeasure<T>
+    public abstract class UnitOfMeasure<T> : IEquatable<T>, IComparable<T> where T:UnitOfMeasure<T>
     {
         protected UnitOfMeasure(decimal value, string shortName, string longName, decimal valueInBaseUnit, params string[] aliases)
         {
@@ -47,5 +47,11 @@ namespace Units
             return obj.GetType() == this.GetType() && Equals((T)obj);
         }
 
+        public int CompareTo(T other)
+        {
+            if (ReferenceEquals(this, other)) return 0;
+            if (ReferenceEquals(null, other)) return 1;
+            return ValueInBaseUnit.CompareTo(other.ValueInBaseUnit);
+        }
     }
 }

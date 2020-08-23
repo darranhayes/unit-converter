@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Units;
 using Xunit;
 
@@ -131,6 +132,32 @@ namespace Tests
             var targetVelocity = Velocity.Create(targetDistance, targetTime);
 
             Assert.Equal(velocity, targetVelocity);
+        }
+
+        [Fact]
+        public void SortedVelocities()
+        {
+            var unsorted = new[]
+            {
+                Velocity.Create(98m, Velocity.Ms),
+                Velocity.Create(100m, Velocity.Kph),
+                Velocity.Create(99m, Velocity.Mph),
+                Velocity.Create(Distance.Create(97m, Distance.Feet), Time.Minute),
+                Velocity.Create(1000m, Velocity.Mph)
+            };
+
+            var sorted = unsorted.OrderBy(i => i);
+
+            var expected = new[]
+            {
+                Velocity.Create(Distance.Create(97m, Distance.Feet), Time.Minute),
+                Velocity.Create(100m, Velocity.Kph),
+                Velocity.Create(99m, Velocity.Mph),
+                Velocity.Create(98m, Velocity.Ms),
+                Velocity.Create(1000m, Velocity.Mph)
+            };
+
+            Assert.Equal(expected, sorted);
         }
     }
 }

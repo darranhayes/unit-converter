@@ -1,4 +1,5 @@
-﻿using Units;
+﻿using System.Linq;
+using Units;
 using Xunit;
 
 namespace Tests
@@ -125,6 +126,32 @@ namespace Tests
             Assert.Equal("9s", mm.ToString());
             Assert.Equal("9m", cm.ToString());
             Assert.NotEqual(mm, cm);
+        }
+
+        [Fact]
+        public void SortedDistances()
+        {
+            var unsorted = new[]
+            {
+                Time.Create(98m, Time.Minute),
+                Time.Create(100m, Time.Hour),
+                Time.Create(99m, Time.Second),
+                Time.Create(96m, Time.Day),
+                Time.Create(1000m, Time.Millisecond)
+            };
+
+            var sorted = unsorted.OrderBy(i => i);
+
+            var expected = new[]
+            {
+                Time.Create(1000m, Time.Millisecond),
+                Time.Create(99m, Time.Second),
+                Time.Create(98m, Time.Minute),
+                Time.Create(100m, Time.Hour),
+                Time.Create(96m, Time.Day)
+            };
+
+            Assert.Equal(expected, sorted);
         }
     }
 }

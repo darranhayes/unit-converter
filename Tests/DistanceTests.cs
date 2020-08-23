@@ -1,4 +1,5 @@
-﻿using Units;
+﻿using System.Linq;
+using Units;
 using Xunit;
 
 namespace Tests
@@ -133,6 +134,32 @@ namespace Tests
             Assert.Equal("9mm", mm.ToString());
             Assert.Equal("9cm", cm.ToString());
             Assert.NotEqual(mm, cm);
+        }
+
+        [Fact]
+        public void SortedDistances()
+        {
+            var unsorted = new[]
+            {
+                Distance.Create(98m, Distance.Meter),
+                Distance.Create(100m, Distance.Feet),
+                Distance.Create(99m, Distance.Inch),
+                Distance.Create(96m, Distance.Mile),
+                Distance.Create(1000m, Distance.Yard)
+            };
+
+            var sorted = unsorted.OrderBy(i => i);
+
+            var expected = new[]
+            {
+                Distance.Create(99m, Distance.Inch),
+                Distance.Create(100m, Distance.Feet),
+                Distance.Create(98m, Distance.Meter),
+                Distance.Create(1000m, Distance.Yard),
+                Distance.Create(96m, Distance.Mile)
+            };
+
+            Assert.Equal(expected, sorted);
         }
     }
 }
