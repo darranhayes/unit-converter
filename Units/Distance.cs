@@ -60,37 +60,10 @@ namespace Units
 
         private decimal Ratio { get; }
 
-        public static bool TryParseUnit(string inputDistance, out Distance unitDistance)
-        {
-            var input = inputDistance.ToLower();
-            unitDistance = null;
+        public static bool TryParseUnit(string inputUnit, out Distance unitDistance) =>
+            UnitOfMeasureParser.TryParseSimpleUnit(inputUnit, AllUnits, out unitDistance);
 
-            var matchedUnit = AllUnits.FirstOrDefault(unit => unit.ShortName.ToLowerInvariant() == input || unit.LongName.ToLowerInvariant() == input);
-            
-            if (matchedUnit == null)
-                return false;
-
-            unitDistance = matchedUnit;
-            return true;
-        }
-
-        public static bool TryParse(string input, out Distance distance)
-        {
-            distance = null;
-
-            var decimalPart = Parser.Match(input).Groups["distance"];
-            var unitPart = Parser.Match(input).Groups["unit"];
-
-            var valueStringMatched = decimal.TryParse(decimalPart.Value, out var value);
-            var unitStringMatched = TryParseUnit(unitPart.Value, out var unit);
-
-            if (!valueStringMatched || !unitStringMatched)
-                return false;
-
-            distance = Create(value, unit);
-            return true;
-        }
-
-        private static readonly Regex Parser = new Regex(@"^(?<distance>[+-]?(([1-9][0-9]*)?[0-9](\.[0-9]*)?|\.[0-9]+))(\s*)(?<unit>\w+)$");
+        public static bool TryParse(string input, out Distance distance) =>
+            UnitOfMeasureParser.TryParseSimpleValue(input, AllUnits, Create, out distance);
     }
 }

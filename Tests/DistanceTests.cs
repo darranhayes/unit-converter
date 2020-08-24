@@ -29,7 +29,7 @@ namespace Tests
         [InlineData(1, "yd", 3, "ft")]
         [InlineData(1, "mi", 1609.344, "m")]
         public void DistanceCreateAndConvertTo(
-            decimal distanceInput, string unitInput, 
+            decimal distanceInput, string unitInput,
             decimal targetDistanceInput, string targetDistanceUnitInput
             )
         {
@@ -44,7 +44,7 @@ namespace Tests
 
             Assert.Equal($"{targetDistanceInput}{targetDistanceUnitInput}", targetDistance.ToString());
             Assert.Equal(targetDistanceInput, targetDistance.Value);
-            
+
             Assert.Equal(baseDistance, targetDistance);
         }
 
@@ -66,7 +66,7 @@ namespace Tests
         }
 
         /// <summary>
-        /// Distance.TryParse - Show that converting distance in one unit of length equals the same real distance expressed
+        /// Distance.TryParseSimple - Show that converting distance in one unit of length equals the same real distance expressed
         /// in a different unit of length
         /// </summary>
         /// <param name="baseDistanceInput"></param>
@@ -99,7 +99,7 @@ namespace Tests
         }
 
         /// <summary>
-        /// Distance.TryParse - Show that converting distance in one unit of length equals the same real distance expressed
+        /// Distance.TryParseSimple - Show that converting distance in one unit of length equals the same real distance expressed
         /// in a different unit of length
         /// </summary>
         /// <param name="baseDistanceInput"></param>

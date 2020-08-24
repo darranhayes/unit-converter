@@ -62,7 +62,7 @@ namespace Tests
         }
 
         /// <summary>
-        /// Time.TryParse - Show that converting time in one unit of length equals the same real time expressed
+        /// Time.TryParseSimple - Show that converting time in one unit of length equals the same real time expressed
         /// in a different unit of length
         /// </summary>
         /// <param name="baseTimeInput"></param>
@@ -91,7 +91,7 @@ namespace Tests
         }
 
         /// <summary>
-        /// Time.TryParse - Show that converting time in one unit of length equals the same real time expressed
+        /// Time.TryParseSimple - Show that converting time in one unit of length equals the same real time expressed
         /// in a different unit of length
         /// </summary>
         /// <param name="baseTimeInput"></param>

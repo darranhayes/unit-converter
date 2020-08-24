@@ -54,37 +54,10 @@ namespace Units
             return Create(targetTime, target);
         }
 
-        public static bool TryParseUnit(string input, out Time unitTime)
-        {
-            var lowerInput = input.ToLower();
-            unitTime = null;
+        public static bool TryParseUnit(string input, out Time unitTime) =>
+            UnitOfMeasureParser.TryParseSimpleUnit(input, AllUnits, out unitTime);
 
-            var matchedUnit = AllUnits.FirstOrDefault(unit => unit.ShortName.ToLowerInvariant() == lowerInput || unit.LongName.ToLowerInvariant() == lowerInput);
-
-            if (matchedUnit == null)
-                return false;
-
-            unitTime = matchedUnit;
-            return true;
-        }
-
-        public static bool TryParse(string input, out Time duration)
-        {
-            duration = null;
-
-            var decimalPart = Parser.Match(input).Groups["duration"];
-            var unitPart = Parser.Match(input).Groups["unit"];
-
-            var valueStringMatched = decimal.TryParse(decimalPart.Value, out var value);
-            var unitStringMatched = TryParseUnit(unitPart.Value, out var unit);
-
-            if (!valueStringMatched || !unitStringMatched)
-                return false;
-
-            duration = Create(value, unit);
-            return true;
-        }
-
-        private static readonly Regex Parser = new Regex(@"^(?<duration>[+-]?(([1-9][0-9]*)?[0-9](\.[0-9]*)?|\.[0-9]+))(\s*)(?<unit>\w+)$");
+        public static bool TryParse(string input, out Time time) =>
+            UnitOfMeasureParser.TryParseSimpleValue(input, AllUnits, Create, out time);
     }
 }

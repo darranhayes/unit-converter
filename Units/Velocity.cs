@@ -25,10 +25,10 @@ namespace Units
             Create(Distance.Create(value, unitVelocity.Distance), unitVelocity.Time);
 
         protected Velocity(Distance distance, Time time, params string[] aliases) :
-            base(distance.Value, 
-                $"{distance.Unit.ShortName}/{time.Unit.ShortName}", 
-                $"{distance.Unit.LongName} per {time.Unit.LongName}", 
-                distance.Value * GetConversionFactor(distance, time), 
+            base(distance.Value,
+                $"{distance.Unit.ShortName}/{time.Unit.ShortName}",
+                $"{distance.Unit.LongName} per {time.Unit.LongName}",
+                distance.Value * GetConversionFactor(distance, time),
                 aliases)
         {
             Distance = distance;
